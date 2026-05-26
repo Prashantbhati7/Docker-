@@ -1,0 +1,10 @@
+services:
+  myapp:
+    build: .
+    volumes:
+      - myvolume:/app/data
+    container_name: myapp-container
+    stdin_open: true
+
+volumes:
+  myvolume:
