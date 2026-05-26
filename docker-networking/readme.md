@@ -30,3 +30,13 @@
         port 3000
     without conflict.
     Because each has separate network namespace.
+
+## we can create network of containers and container's in that network can communicate and connect with each other 
+
+## commands 
+
+docker create network <network-name>
+docker run -d <container1-name> --network <network-name>
+docker run -d <container2-name> --network <network-name>
+
+now these containers can communicate with each other
