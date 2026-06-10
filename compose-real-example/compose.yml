@@ -1,0 +1,55 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontendcontainer
+    environment:
+      - NEXT_PUBLIC_BACKEND_BASE_URL=http://localhost:3001    
+      #  localhost because frontend will go to client's machine and make request from that mahine for that machine containers are not existed so for development send req to client's machine's port 3001 which is mapped to bakcend container so indirectly req reach to backend container 
+    ports:
+      - 3000:3000
+  backend:
+    build: ./backend
+    container_name: backendcontainer
+    environment:
+      - FRONTEND_URL=http://frontendcontainer:3000
+      - REDIS_URL=redis://rediscontainer:6379
+      - MONGO_URL=mongodb://mongocontainer:27017/mongo_db
+    ports:
+      - 3001:3001
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+  redis:
+    container_name: rediscontainer
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  mongo:
+    image: mongo:7
+    container_name: mongocontainer
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: mongo_db
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.adminCommand(\"ping\")' --quiet"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s 
+  
+volumes:
+  mongo-data:
+  redis-data:
